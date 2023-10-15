@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import { useCallback, useEffect, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import toast from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,6 +49,17 @@ export default function Home() {
     setScore(0);
     setPlay(false);
     setStatus("STOPPED");
+  }, []);
+
+  const claim = useCallback(() => {
+    setDirection("STOP");
+    setSnake([
+      { x: 20 / 2, y: 20 / 2 },
+      { x: 20 / 2 + 1, y: 20 / 2 },
+    ]);
+    setScore(0);
+    setPlay(false);
+    setStatus("CLAIM");
   }, []);
 
   const renderFood = useCallback(() => {
@@ -101,6 +113,10 @@ export default function Home() {
     let isAteFood = newSnake[0].x === food.x && newSnake[0].y === food.y;
 
     if (isAteFood) {
+      if (score === 0.0005) {
+        claim();
+        return toast.success("Congratulations!");
+      }
       setScore((prevState) => prevState + 0.0001);
       renderFood();
     } else if (direction !== "STOP") {
@@ -108,7 +124,7 @@ export default function Home() {
     }
 
     setSnake(newSnake);
-  }, [direction, food.x, food.y, gameOver, renderFood, snake]);
+  }, [claim, direction, food.x, food.y, gameOver, renderFood, score, snake]);
 
   const updateDirection = useCallback(
     (e: any) => {
@@ -180,7 +196,11 @@ export default function Home() {
         </div>
         <div className={styles.board}>{renderBoard()}</div>
         <button className={styles.play} onClick={handlePlay}>
-          {status === "STOPPED" ? "PLAY" : "PLAYING"}
+          {status === "STOPPED"
+            ? "PLAY"
+            : status === "CLAIM"
+            ? "CLAIM 0.0005"
+            : "PLAYING"}
         </button>
       </main>
     </>
