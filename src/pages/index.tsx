@@ -28,6 +28,7 @@ export default function Home() {
     init_user_pool,
     request_faucet,
     isUserInitialized,
+    claimed,
   } = useFaucetContext();
 
   function renderBoard() {
@@ -174,10 +175,13 @@ export default function Home() {
     if (!publicKey || !connected || !signMessage) {
       return toast.error("Connect your wallet first!");
     }
+    if (claimed >= 0.001) {
+      return toast.error("you have exceeded the withdrawal limit!");
+    }
     setPlay(true);
     setDirection("UP");
     setStatus("PLAYING");
-  }, [connected, publicKey, signMessage]);
+  }, [connected, publicKey, signMessage, claimed]);
 
   const initAccount = useCallback(async () => {
     if (!publicKey || !connected) {

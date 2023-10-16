@@ -21,6 +21,7 @@ export const FaucetProvider = ({ children }: any) => {
   const wallet = useWallet();
 
   const [isUserInitialized, setIsUserInitialized] = useState(false);
+  const [claimed, setClaimed] = useState(0)
 
   const program = useMemo(() => {
     if (connection) {
@@ -36,8 +37,10 @@ export const FaucetProvider = ({ children }: any) => {
         "user-pool",
         wallet.publicKey,
       ]);
-      const txHash = await program.account.userPool.fetch(userPoolKey);
+      const txHash: any = await program.account.userPool.fetch(userPoolKey);
       if (txHash) {
+        console.log(txHash.receivedAmount.toNumber() / 1e9)
+        setClaimed(txHash.receivedAmount.toNumber() / 1e9)
         setIsUserInitialized(true);
       }
     } catch (error) {
@@ -151,6 +154,7 @@ export const FaucetProvider = ({ children }: any) => {
         init_user_pool,
         request_faucet,
         isUserInitialized,
+        claimed
       }}
     >
       {children}
