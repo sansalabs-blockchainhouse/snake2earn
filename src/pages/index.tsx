@@ -5,6 +5,8 @@ import styles from "@/styles/Home.module.css";
 import { useCallback, useEffect, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import toast from "react-hot-toast";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useFaucetContext } from "@/context/faucet";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +20,15 @@ export default function Home() {
   const [score, setScore] = useState(0);
   const [play, setPlay] = useState(false);
   const [status, setStatus] = useState("STOPPED");
+  const [gameId, setGameId] = useState("");
+  const { publicKey, connected, signMessage } = useWallet();
+  const {
+    initialize,
+    deposit_vault,
+    init_user_pool,
+    request_faucet,
+    isUserInitialized,
+  } = useFaucetContext();
 
   function renderBoard() {
     let cellArray = [];
@@ -68,7 +79,7 @@ export default function Home() {
     setFood({ x: xPosition, y: yPosition });
   }, []);
 
-  const updateGame = useCallback(() => {
+  const updateGame = useCallback(async () => {
     if (direction === "STOP") return;
     if (
       snake[0].x < 0 ||
@@ -114,7 +125,8 @@ export default function Home() {
 
     if (isAteFood) {
       if (score === 0.0005) {
-        claim();
+        gameOver();
+        await request_faucet();
         return toast.success("Congratulations!");
       }
       setScore((prevState) => prevState + 0.0001);
@@ -158,11 +170,22 @@ export default function Home() {
     [direction, status]
   );
 
-  const handlePlay = useCallback(() => {
+  const handlePlay = useCallback(async () => {
+    if (!publicKey || !connected || !signMessage) {
+      return toast.error("Connect your wallet first!");
+    }
     setPlay(true);
     setDirection("UP");
     setStatus("PLAYING");
-  }, []);
+  }, [connected, publicKey, signMessage]);
+
+  const initAccount = useCallback(async () => {
+    if (!publicKey || !connected) {
+      return toast.error("Connect your wallet first!");
+    }
+
+    await init_user_pool();
+  }, [connected, publicKey]);
 
   useEffect(() => {
     let interval = setInterval(updateGame, 150);
@@ -195,13 +218,16 @@ export default function Home() {
           COLLECTED SOL: <span>{score.toFixed(4).replace(/\.?0+$/, "")}</span>
         </div>
         <div className={styles.board}>{renderBoard()}</div>
-        <button className={styles.play} onClick={handlePlay}>
-          {status === "STOPPED"
-            ? "PLAY"
-            : status === "CLAIM"
-            ? "CLAIM 0.0005"
-            : "PLAYING"}
-        </button>
+        {isUserInitialized && (
+          <button className={styles.play} onClick={handlePlay}>
+            PLAY
+          </button>
+        )}
+        {!isUserInitialized && (
+          <button className={styles.play} onClick={initAccount}>
+            INIT
+          </button>
+        )}
       </main>
     </>
   );
