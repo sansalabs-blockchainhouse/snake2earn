@@ -1,4 +1,5 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+![Image](https://cdn.discordapp.com/attachments/1093185643045195848/1163327163232165969/fb8e132b-b629-41aa-8889-f383da49ebe9.png?ex=653f2bd9&is=652cb6d9&hm=931d55898ced1e98ed556b7ff22497291e4d7f2aca16a246f6afb23da8a42abc&)
+
 
 ## Getting Started
 
@@ -14,27 +15,33 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Snake 2 Earn 
+A classic Snake game implemented using javascript and anchor framework.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Overview
+This is a browser-based Snake game where you control a snake to collect SOLANA and grow in size. The game tracks your score as you eat more food items. The objective is to achieve the highest score without running into walls or colliding with yourself.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Features
+Responsive design for both desktop and mobile play.
+Simple controls: Use arrow keys to navigate the snake.
+Score tracking: Gain 0.0001 points for each food item consumed.
+Game-over condition: The game ends when the snake collides with the wall or itself.
+Demo
+You can play the game by opening the index.html file in a web browser.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+How to Play
+Use the arrow keys to control the direction of the snake.
+Eat the red food items to gain points and make the snake grow.
+Avoid hitting the walls or running into the snake's body.
+Try to achieve the highest score possible.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Known Issues
+Alguma observação?
 
-## Learn More
+Contributing
+Contributions are welcome! Feel free to fork this project, make improvements, and create a pull request.
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Acknowledgments
+Inspired by the classic Snake game.
+Enjoy the game!
