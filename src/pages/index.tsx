@@ -258,7 +258,17 @@ export default function Home() {
           >
             SNAKE 2 EARN
           </Text>
-          <WalletMultiButton />
+          <Flex align={"center"} gap={"5px"}>
+            <Text
+              color={"#FFFFFF"}
+              fontFamily={'"VT323", monospace'}
+              fontSize={"24px"}
+              cursor={"pointer"}
+            >
+              Devnet
+            </Text>
+            <WalletMultiButton />
+          </Flex>
         </Flex>
         <Box
           color={"#FFFFFF"}
