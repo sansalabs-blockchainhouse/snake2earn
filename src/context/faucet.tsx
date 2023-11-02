@@ -61,8 +61,6 @@ export const FaucetProvider = ({ children }: any) => {
       "vault-wallet",
     ]);
 
-    console.log(program);
-
     const txHash = await program.methods
       .initialize(toBN(BigInt(0.001 * 1e9)), vaultWalletBump)
       .accounts({
@@ -118,24 +116,33 @@ export const FaucetProvider = ({ children }: any) => {
   const init_user_pool = async () => {
     if (!program || !wallet.publicKey)
       return toast.error("Something went wrong!");
+    const toastId = toast.loading("Loading...");
 
-    const [userPoolKey] = await getPDA(program.programId, [
-      "user-pool",
-      wallet.publicKey,
-    ]);
+    try {
+      const [userPoolKey] = await getPDA(program.programId, [
+        "user-pool",
+        wallet.publicKey,
+      ]);
 
-    const txHash = await program.methods
-      .initUserPool()
-      .accounts({
-        payer: wallet.publicKey,
-        userPool: userPoolKey,
-        systemProgram: SystemProgram.programId,
-        rent: SYSVAR_RENT_PUBKEY,
-      })
-      .rpc();
+      const txHash = await program.methods
+        .initUserPool()
+        .accounts({
+          payer: wallet.publicKey,
+          userPool: userPoolKey,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
+        })
+        .rpc();
 
-    await confirmTx(txHash, connection);
-    await getUsePool();
+      await confirmTx(txHash, connection);
+      await getUsePool();
+    } catch (error) {
+      toast.dismiss();
+
+      toast.error("Error initializing");
+    } finally {
+      toast.dismiss(toastId);
+    }
   };
 
   const request_faucet = async () => {
