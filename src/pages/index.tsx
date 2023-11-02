@@ -309,7 +309,6 @@ export default function Home() {
             INIT
           </Button>
         )}
-        <Button onClick={onOpen}>Open Modal</Button>
       </Flex>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
