@@ -7,10 +7,25 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import toast from "react-hot-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useFaucetContext } from "@/context/faucet";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Button,
+  Text,
+  Flex,
+  Box,
+} from "@chakra-ui/react";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [food, setFood] = useState({ x: 5, y: 5 });
   const [snake, setSnake] = useState([
     { x: 20 / 2, y: 20 / 2 },
@@ -20,7 +35,7 @@ export default function Home() {
   const [score, setScore] = useState(0);
   const [play, setPlay] = useState(false);
   const [status, setStatus] = useState("STOPPED");
-  const [gameId, setGameId] = useState("");
+  const [txHash, setTxHash] = useState("");
   const { publicKey, connected, signMessage } = useWallet();
   const {
     initialize,
@@ -127,7 +142,9 @@ export default function Home() {
     if (isAteFood) {
       if (score === 0.0005) {
         gameOver();
-        await request_faucet();
+        const txHash = await request_faucet();
+        setTxHash(txHash);
+        onOpen();
         return toast.success("Congratulations!");
       }
       setScore((prevState) => prevState + 0.0001);
@@ -212,27 +229,113 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/logo.png" />
       </Head>
-      <main className={`${styles.main} ${inter.className}`}>
-        <nav className={styles.navbar}>
+      <Flex
+        flexDirection={"column"}
+        justifyContent={"center"}
+        alignItems={"center"}
+        padding={"1rem"}
+        minH={"100vh"}
+        background={"#2a1654"}
+      >
+        <Flex
+          width={"100%"}
+          top={0}
+          position={"fixed"}
+          padding={"10px"}
+          flexDirection={"row"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+        >
           <Image src={"/logo.png"} width={120} height={120} alt="Logo" />
-          <h1 className={styles.title}>SNAKE 2 EARN</h1>
+          <Text
+            fontFamily={'"VT323", monospace'}
+            position={"absolute"}
+            top={"50%"}
+            left={"50%"}
+            transform={"translate(-50%, -50%)"}
+            fontSize={"64px"}
+            color={"#FFFFFF"}
+          >
+            SNAKE 2 EARN
+          </Text>
           <WalletMultiButton />
-        </nav>
-        <div className={styles.score}>
+        </Flex>
+        <Box
+          color={"#FFFFFF"}
+          fontSize={"20px"}
+          fontFamily={'"VT323", monospace'}
+        >
           COLLECTED SOL: <span>{score.toFixed(4).replace(/\.?0+$/, "")}</span>
-        </div>
-        <div className={styles.board}>{renderBoard()}</div>
+        </Box>
+        <Box
+          display={"grid"}
+          gridTemplateColumns={"repeat(20, 20px)"}
+          gridTemplateRows={"repeat(20, 20px)"}
+          width={"max-content"}
+          marginTop={"10px"}
+          border={"3px solid #FFFFFF"}
+        >
+          {renderBoard()}
+        </Box>
         {isUserInitialized && (
-          <button className={styles.play} onClick={handlePlay}>
+          <Button
+            fontSize={"60px"}
+            fontFamily={'"VT323", monospace'}
+            marginTop={"20px"}
+            background={"transparent"}
+            border={"none"}
+            color={"#FFFFFF"}
+            onClick={handlePlay}
+            _hover={{
+              background: "transparent",
+            }}
+          >
             PLAY
-          </button>
+          </Button>
         )}
         {!isUserInitialized && (
-          <button className={styles.play} onClick={initAccount}>
+          <Button
+            fontSize={"60px"}
+            fontFamily={'"VT323", monospace'}
+            marginTop={"20px"}
+            background={"transparent"}
+            border={"none"}
+            color={"#FFFFFF"}
+            _hover={{
+              background: "transparent",
+            }}
+            onClick={initAccount}
+          >
             INIT
-          </button>
+          </Button>
         )}
-      </main>
+        <Button onClick={onOpen}>Open Modal</Button>
+      </Flex>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent
+          background={"#2a1654"}
+          border={"3px solid #FFFFFF"}
+          color={"#FFFFFF"}
+          fontFamily={'"VT323", monospace'}
+        >
+          <ModalHeader>Modal Title</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text fontSize={24}>Congratulations!</Text>
+            <Text fontSize={24}>You won 0.0005 SOL</Text>
+            <CopyToClipboard
+              text={`https://solscan.io/tx/${txHash}?cluster=devnet`}
+              onCopy={() => toast.success("Successfully copied to clipboard")}
+            >
+              <Text
+                marginTop={"10px"}
+                fontSize={24}
+              >{`https://solscan.io/tx/${txHash}?cluster=devnet`}</Text>
+            </CopyToClipboard>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

@@ -144,6 +144,7 @@ export const FaucetProvider = ({ children }: any) => {
       .rpc();
 
     await confirmTx(txHash, connection);
+    return txHash
   };
 
   return (
