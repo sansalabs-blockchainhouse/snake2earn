@@ -192,7 +192,7 @@ export default function Home() {
     if (!publicKey || !connected || !signMessage) {
       return toast.error("Connect your wallet first!");
     }
-    if (claimed >= 0.001) {
+    if (claimed >= 0.01) {
       return toast.error("you have exceeded the withdrawal limit!");
     }
     setPlay(true);
@@ -299,6 +299,9 @@ export default function Home() {
             _hover={{
               background: "transparent",
             }}
+            _focus={{
+              boxShadow: "none",
+            }}
           >
             PLAY
           </Button>
@@ -315,6 +318,9 @@ export default function Home() {
               background: "transparent",
             }}
             onClick={initAccount}
+            _focus={{
+              boxShadow: "none",
+            }}
           >
             INIT
           </Button>
@@ -329,7 +335,11 @@ export default function Home() {
           fontFamily={'"VT323", monospace'}
         >
           <ModalHeader>Modal Title</ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton
+            _focus={{
+              boxShadow: "none",
+            }}
+          />
           <ModalBody>
             <Text fontSize={24}>Congratulations!</Text>
             <Text fontSize={24}>You won 0.0005 SOL</Text>

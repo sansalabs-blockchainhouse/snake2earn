@@ -21,7 +21,7 @@ export const FaucetProvider = ({ children }: any) => {
   const wallet = useWallet();
 
   const [isUserInitialized, setIsUserInitialized] = useState(false);
-  const [claimed, setClaimed] = useState(0)
+  const [claimed, setClaimed] = useState(0);
 
   const program = useMemo(() => {
     if (connection) {
@@ -39,8 +39,8 @@ export const FaucetProvider = ({ children }: any) => {
       ]);
       const txHash: any = await program.account.userPool.fetch(userPoolKey);
       if (txHash) {
-        console.log(txHash.receivedAmount.toNumber() / 1e9)
-        setClaimed(txHash.receivedAmount.toNumber() / 1e9)
+        console.log(txHash.receivedAmount.toNumber() / 1e9);
+        setClaimed(txHash.receivedAmount.toNumber() / 1e9);
         setIsUserInitialized(true);
       }
     } catch (error) {
@@ -84,11 +84,29 @@ export const FaucetProvider = ({ children }: any) => {
     const [vaultWalletKey] = await getPDA(program.programId, ["vault-wallet"]);
 
     const txHash = await program.methods
-      .depositVault(toBN(BigInt(0.4 * 1e9)))
+      .depositVault(toBN(BigInt(0.2 * 1e9)))
       .accounts({
         admin: wallet.publicKey,
         globalState: globalStateKey,
         vaultWallet: vaultWalletKey,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY,
+      })
+      .rpc();
+
+    await confirmTx(txHash, connection);
+  };
+
+  const update_limit = async () => {
+    if (!program) return toast.error("Something went wrong!");
+
+    const [globalStateKey] = await getPDA(program.programId, ["global-state"]);
+
+    const txHash = await program.methods
+      .updateLimit(toBN(BigInt(0.01 * 1e9)))
+      .accounts({
+        admin: wallet.publicKey,
+        globalState: globalStateKey,
         systemProgram: SystemProgram.programId,
         rent: SYSVAR_RENT_PUBKEY,
       })
@@ -124,27 +142,41 @@ export const FaucetProvider = ({ children }: any) => {
     if (!program || !wallet.publicKey)
       return toast.error("Something went wrong!");
 
-    const [globalStateKey] = await getPDA(program.programId, ["global-state"]);
-    const [vaultWalletKey] = await getPDA(program.programId, ["vault-wallet"]);
-    const [userPoolKey] = await getPDA(program.programId, [
-      "user-pool",
-      wallet.publicKey,
-    ]);
+    const toastId = toast.loading("Loading...");
 
-    const txHash = await program.methods
-      .requestFaucet(toBN(BigInt(0.0005 * 1e9)))
-      .accounts({
-        payer: wallet.publicKey,
-        globalState: globalStateKey,
-        vaultWallet: vaultWalletKey,
-        userPool: userPoolKey,
-        systemProgram: SystemProgram.programId,
-        rent: SYSVAR_RENT_PUBKEY,
-      })
-      .rpc();
+    try {
+      const [globalStateKey] = await getPDA(program.programId, [
+        "global-state",
+      ]);
+      const [vaultWalletKey] = await getPDA(program.programId, [
+        "vault-wallet",
+      ]);
+      const [userPoolKey] = await getPDA(program.programId, [
+        "user-pool",
+        wallet.publicKey,
+      ]);
 
-    await confirmTx(txHash, connection);
-    return txHash
+      const txHash = await program.methods
+        .requestFaucet(toBN(BigInt(0.0005 * 1e9)))
+        .accounts({
+          payer: wallet.publicKey,
+          globalState: globalStateKey,
+          vaultWallet: vaultWalletKey,
+          userPool: userPoolKey,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
+        })
+        .rpc();
+
+      await confirmTx(txHash, connection);
+      return txHash;
+    } catch (error) {
+      toast.dismiss();
+
+      toast.error("Error requesting");
+    } finally {
+      toast.dismiss(toastId);
+    }
   };
 
   return (
@@ -155,7 +187,8 @@ export const FaucetProvider = ({ children }: any) => {
         init_user_pool,
         request_faucet,
         isUserInitialized,
-        claimed
+        claimed,
+        update_limit,
       }}
     >
       {children}
